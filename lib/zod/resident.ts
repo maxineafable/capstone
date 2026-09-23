@@ -42,5 +42,15 @@ export const registerResidentSchema = z.object({
   path: ["confirmPassword"],
 });
 
+export const loginResidentSchema = z.object({
+  email: z.email("Enter your email"),
+  password: z
+    .string()
+    .min(1, "Enter your password"),
+})
+
 export type RegisterResident = z.infer<typeof registerResidentSchema>;
 export type ResidentValidId = z.infer<typeof residentValidIdEnum>
+
+export type LoginResident = z.infer<typeof loginResidentSchema>;
+
