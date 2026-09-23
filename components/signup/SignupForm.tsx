@@ -3,7 +3,7 @@
 import { RegisterResident, registerResidentSchema, ResidentValidId, residentValidIdEnum } from "@/lib/zod/resident";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
-import { ArrowLeft, ArrowRight, Contact, Lock, MapPinHouse, SquareUserRound } from "lucide-react"
+import { ArrowLeft, ArrowRight, Check, CheckCircle, Contact, Lock, MapPinHouse, SquareUserRound } from "lucide-react"
 
 import {
   Field,
@@ -18,7 +18,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import StepSection from "./StepSection";
+import ReminderSection from "./ReminderSection";
+import DataPrivacySect from "./DataPrivacySect";
+import DocumentGuide from "./DocumentGuide";
+import Link from "next/link";
 
 export default function SignupForm() {
   const [step, setStep] = useState(1)
@@ -58,13 +63,25 @@ export default function SignupForm() {
 
   function onSubmit(data: RegisterResident) {
     console.log("submit")
+    console.log(data)
   }
 
+  useEffect(() => {
+    if (form.formState.isSubmitSuccessful) {
+      setStep(p => p + 1)
+    }
+  }, [form.formState.isSubmitSuccessful])
+
+
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4">
+      <StepSection step={step} />
+      {step === 1 && <ReminderSection />}
+      {step === 2 && <DataPrivacySect />}
+
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="my-16"
+        className="my-8"
       >
         {step === 1 && (
           <div className="rounded-xl p-8 bg-white space-y-16">
@@ -332,102 +349,110 @@ export default function SignupForm() {
                 />
               </FieldGroup>
             </div>
+
+            <div className="space-y-2 text-center">
+              <Button
+                type="button"
+                className={"w-full rounded-xl py-6"}
+                onClick={nextStep}
+              >
+                <span>Continue to Step 2 (Identity Verification)</span>
+                <ArrowRight />
+              </Button>
+              <div className="space-x-1 text-sm">
+                <span>Mayroon ka nang account?</span>
+                <Link href={'/login'} className="text-blue-500 font-semibold">Mag-login dito (Log in)</Link>
+              </div>
+            </div>
           </div>
         )}
         {step === 2 && (
-          <div className="flex gap-8">
-            <div className="space-y-8 flex-1 ">
-              <div className="space-y-8 bg-white p-8 rounded-xl">
-                <div className="flex items-center gap-2">
-                  <Contact />
-                  <h2 className="font-bold text-xl">Accepted Government IDs</h2>
+          <>
+            <div className="flex gap-8">
+              <div className="space-y-8 flex-1 ">
+                <div className="space-y-8 bg-white p-8 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <Contact />
+                    <h2 className="font-bold text-xl">Accepted Government IDs</h2>
+                  </div>
+                  <FieldGroup className="">
+                    <Controller
+                      name="validId"
+                      control={form.control}
+                      render={({ field, fieldState }) => (
+                        <RadioGroup
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          className="flex flex-wrap max-w-xl"
+                        >
+                          {residentValidIdEnum.options.map(id => (
+                            <FieldLabel
+                              key={id}
+                              htmlFor={id}
+                              className="p-2 rounded-lg bg-blue-200 has-data-checked:bg-blue-500 has-data-checked:[&_.check-icon]:block"
+                            >
+                              <CheckCircle
+                                className="check-icon hidden size-4"
+                              />
+                              <span>{id}</span>
+                              <RadioGroupItem value={id} id={id} className={"sr-only"} />
+                            </FieldLabel>
+                          ))}
+                        </RadioGroup>
+                      )}
+                    />
+                  </FieldGroup>
                 </div>
-                <FieldGroup className="">
-                  <Controller
-                    name="validId"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                      <RadioGroup
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        className="flex flex-wrap max-w-xl"
-                      >
-                        {residentValidIdEnum.options.map(id => (
-                          <FieldLabel
-                            key={id}
-                            htmlFor={id}
-                            className="p-2 rounded-lg bg-blue-400 has-data-checked:bg-blue-500"
-                          >
-                            {id}
-                            <RadioGroupItem value={id} id={id} className={"sr-only"} />
-                          </FieldLabel>
-                        ))}
-                      </RadioGroup>
-                    )}
-                  />
-                </FieldGroup>
-              </div>
-              <div className="space-y-8 bg-white p-8 rounded-xl">
-                <div className="flex items-center gap-2">
-                  <Contact />
-                  <h2 className="font-bold text-xl">Valid Government ID (Front)</h2>
+                <div className="space-y-8 bg-white p-8 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <Contact />
+                    <h2 className="font-bold text-xl">Valid Government ID (Front)</h2>
+                  </div>
+                  <Field>
+                    <FieldLabel htmlFor="picture">Picture</FieldLabel>
+                    <Input id="picture" type="file" />
+                    <FieldDescription>Select a picture to upload.</FieldDescription>
+                  </Field>
                 </div>
-                <Field>
-                  <FieldLabel htmlFor="picture">Picture</FieldLabel>
-                  <Input id="picture" type="file" />
-                  <FieldDescription>Select a picture to upload.</FieldDescription>
-                </Field>
-              </div>
-              <div className="space-y-8 bg-white p-8 rounded-xl">
-                <div className="flex items-center gap-2">
-                  <Contact />
-                  <h2 className="font-bold text-xl">Valid Government ID (Back)</h2>
+                <div className="space-y-8 bg-white p-8 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <Contact />
+                    <h2 className="font-bold text-xl">Valid Government ID (Back)</h2>
+                  </div>
+                  <Field>
+                    <FieldLabel htmlFor="picture">Picture</FieldLabel>
+                    <Input id="picture" type="file" />
+                    <FieldDescription>Select a picture to upload.</FieldDescription>
+                  </Field>
                 </div>
-                <Field>
-                  <FieldLabel htmlFor="picture">Picture</FieldLabel>
-                  <Input id="picture" type="file" />
-                  <FieldDescription>Select a picture to upload.</FieldDescription>
-                </Field>
               </div>
+              <DocumentGuide />
             </div>
-            <div className="bg-white rounded-xl p-8">
-              <h2>Alituntunin sa Dokumento</h2>
+            <div className="flex items-center my-8 justify-between bg-white rounded-xl p-4">
+              <Button
+                type="button"
+                onClick={() => setStep(p => p - 1)}
+                className={"rounded-xl px-8 py-6"}
+              >
+                <ArrowLeft />
+                <span>Back to step 1</span>
+              </Button>
+              <Button
+                type="submit"
+                className={"rounded-xl px-8 py-6"}
+              >
+                <span>Submit Registration</span>
+                <ArrowRight />
+              </Button>
             </div>
-          </div>
-
+          </>
         )}
-        {step === 1 && (
-          <Button
-            type="button"
-            className={"w-full rounded-xl py-6"}
-            onClick={nextStep}
-          >
-            <span>Continue to Step 2 (Identity Verification)</span>
-            <ArrowRight />
-          </Button>
-        )}
-
-        {step === 2 && (
-          <div className="flex items-center mt-16 justify-between">
-            <Button
-              type="button"
-              onClick={() => setStep(p => p - 1)}
-              className={"rounded-xl px-8 py-6"}
-            >
-              <ArrowLeft />
-              <span>Back to step 1</span>
-            </Button>
-            <Button
-              type="submit"
-              className={"rounded-xl px-8 py-6"}
-            >
-              <span>Submit Registration</span>
-              <ArrowRight />
-            </Button>
+        {step === 3 && (
+          <div className="">
+            step 3 todo
           </div>
         )}
       </form>
-
     </div>
   );
 }
