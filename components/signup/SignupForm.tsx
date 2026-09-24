@@ -24,6 +24,7 @@ import ReminderSection from "./ReminderSection";
 import DataPrivacySect from "./DataPrivacySect";
 import DocumentGuide from "./DocumentGuide";
 import Link from "next/link";
+import { authClient } from "@/lib/auth-client";
 
 export default function SignupForm() {
   const [step, setStep] = useState(1)
@@ -31,27 +32,28 @@ export default function SignupForm() {
   const form = useForm({
     resolver: zodResolver(registerResidentSchema),
     defaultValues: {
-      firstname: "",
-      middlename: "",
-      lastname: "",
-      suffix: "",
+      firstname: "1",
+      middlename: "1",
+      lastname: "1",
+      suffix: "1",
       birthdate: new Date(),
       address: {
-        houseNumber: "",
-        street: "",
-        purok: "",
+        houseNumber: "1",
+        street: "1",
+        purok: "1",
       },
-      email: "",
+      email: "a@a.com",
       phone: "",
-      password: "",
-      confirmPassword: "",
+      password: "1",
+      confirmPassword: "1",
       // validId: "National ID",
     },
     mode: "onBlur",
   });
 
   const stepFields: (keyof RegisterResident)[][] = [
-    ["firstname", "middlename", "lastname", "suffix", "address", "phone", "email", "password", "confirmPassword"],
+    ["phone"],
+    // ["firstname", "middlename", "lastname", "suffix", "address", "email", "password", "confirmPassword"],
     // ["validId"],
   ]
 
@@ -61,9 +63,17 @@ export default function SignupForm() {
     setStep(p => p + 1)
   }
 
-  function onSubmit(data: RegisterResident) {
+  async function onSubmit(data: RegisterResident) {
     console.log("submit")
     console.log(data)
+
+    const phoneNumber = `+63${data.phone}`
+    console.log(phoneNumber)
+    
+    const { data: authData, error } = await authClient.phoneNumber.sendOtp({
+      phoneNumber, // required, Phone number to send OTP.
+    });
+
   }
 
   useEffect(() => {
@@ -85,7 +95,7 @@ export default function SignupForm() {
       >
         {step === 1 && (
           <div className="rounded-xl p-8 bg-white space-y-16">
-            <div className="space-y-8">
+            {/* <div className="space-y-8">
               <div className="flex items-center gap-2">
                 <SquareUserRound />
                 <h2 className="font-bold text-xl">Full Legal Name</h2>
@@ -176,8 +186,8 @@ export default function SignupForm() {
                   )}
                 />
               </FieldGroup>
-            </div>
-            <div className="space-y-8">
+            </div> */}
+            {/* <div className="space-y-8">
               <div className="flex items-center gap-2">
                 <MapPinHouse />
                 <h2 className="font-bold text-xl">Complete Address</h2>
@@ -247,7 +257,7 @@ export default function SignupForm() {
                   )}
                 />
               </FieldGroup>
-            </div>
+            </div> */}
             <div className="space-y-8">
               <div className="flex items-center gap-2">
                 <Contact />
@@ -265,8 +275,9 @@ export default function SignupForm() {
                       <Input
                         {...field}
                         id="phone"
+                        type="tel"
                         aria-invalid={fieldState.invalid}
-                        placeholder="+63 912 345 6789"
+                        placeholder="9123456789"
                         autoComplete="off"
                       />
                       {fieldState.invalid && (
@@ -275,7 +286,7 @@ export default function SignupForm() {
                     </Field>
                   )}
                 />
-                <Controller
+                {/* <Controller
                   name="email"
                   control={form.control}
                   render={({ field, fieldState }) => (
@@ -296,10 +307,10 @@ export default function SignupForm() {
                       )}
                     </Field>
                   )}
-                />
+                /> */}
               </FieldGroup>
             </div>
-            <div className="space-y-8">
+            {/* <div className="space-y-8">
               <div className="flex items-center gap-2">
                 <Lock />
                 <h2 className="font-bold text-xl">Account Security</h2>
@@ -348,7 +359,7 @@ export default function SignupForm() {
                   )}
                 />
               </FieldGroup>
-            </div>
+            </div> */}
 
             <div className="space-y-2 text-center">
               <Button
@@ -368,66 +379,6 @@ export default function SignupForm() {
         )}
         {step === 2 && (
           <>
-            {/* <div className="flex gap-8">
-              <div className="space-y-8 flex-1 ">
-                <div className="space-y-8 bg-white p-8 rounded-xl">
-                  <div className="flex items-center gap-2">
-                    <Contact />
-                    <h2 className="font-bold text-xl">Accepted Government IDs</h2>
-                  </div>
-                  <FieldGroup className="">
-                    <Controller
-                      name="validId"
-                      control={form.control}
-                      render={({ field, fieldState }) => (
-                        <RadioGroup
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          className="flex flex-wrap max-w-xl"
-                        >
-                          {residentValidIdEnum.options.map(id => (
-                            <FieldLabel
-                              key={id}
-                              htmlFor={id}
-                              className="p-2 rounded-lg bg-blue-200 has-data-checked:bg-blue-500 has-data-checked:[&_.check-icon]:block"
-                            >
-                              <CheckCircle
-                                className="check-icon hidden size-4"
-                              />
-                              <span>{id}</span>
-                              <RadioGroupItem value={id} id={id} className={"sr-only"} />
-                            </FieldLabel>
-                          ))}
-                        </RadioGroup>
-                      )}
-                    />
-                  </FieldGroup>
-                </div>
-                <div className="space-y-8 bg-white p-8 rounded-xl">
-                  <div className="flex items-center gap-2">
-                    <Contact />
-                    <h2 className="font-bold text-xl">Valid Government ID (Front)</h2>
-                  </div>
-                  <Field>
-                    <FieldLabel htmlFor="picture">Picture</FieldLabel>
-                    <Input id="picture" type="file" />
-                    <FieldDescription>Select a picture to upload.</FieldDescription>
-                  </Field>
-                </div>
-                <div className="space-y-8 bg-white p-8 rounded-xl">
-                  <div className="flex items-center gap-2">
-                    <Contact />
-                    <h2 className="font-bold text-xl">Valid Government ID (Back)</h2>
-                  </div>
-                  <Field>
-                    <FieldLabel htmlFor="picture">Picture</FieldLabel>
-                    <Input id="picture" type="file" />
-                    <FieldDescription>Select a picture to upload.</FieldDescription>
-                  </Field>
-                </div>
-              </div>
-              <DocumentGuide />
-            </div> */}
             <div className="flex items-center my-8 justify-between bg-white rounded-xl p-4">
               <Button
                 type="button"

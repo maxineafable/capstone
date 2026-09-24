@@ -9,16 +9,17 @@ export const registerResidentSchema = z.object({
   // user
   email: z.email("Enter a valid email"),
   // phone: z.e164("Enter a valid phone number"),
-  phone: z.string().min(1, "Mobile number is required").max(100),
+  phone: z.string().regex(/^9\d{9}$/, "Enter a valid phone number"),
+  // phone: z.string().min(1, "Mobile number is required").max(100),
 
   password: z
     .string()
-    .min(8, "Password must be at least 8 characters long"),
+    .min(1, "Password must be at least 8 characters long"),
   confirmPassword: z.string(),
 
   // profile
   firstname: z.string().min(1, "First name is required").max(100),
-  middlename: z.string().min(1, "Middle name is required").max(100),
+  middlename: z.string().optional(),
   lastname: z.string().min(1, "Last name is required").max(100),
   suffix: z.string().max(10).optional(),
   birthdate: z.coerce.date(),

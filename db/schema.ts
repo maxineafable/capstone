@@ -7,6 +7,8 @@ export const user = pgTable("user", {
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').default(false).notNull(),
   image: text('image'),
+  phoneNumber: varchar("phone_number", { length: 255 }).unique(),
+  phoneNumberVerified: boolean("phone_number_verified"),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => /* @__PURE__ */ new Date()).notNull()
 });
@@ -53,7 +55,7 @@ export const verification = pgTable("verification", {
   index("verification_identifier_idx").on(table.identifier),
 ]);
 
-export const profileSex = pgEnum('profile_sex', ['male', 'female']);
+export const sexEnum = pgEnum('sex', ['male', 'female']);
 
 export const profile = pgTable("profile", {
   id: serial().primaryKey(),
@@ -62,7 +64,7 @@ export const profile = pgTable("profile", {
   lastname: varchar("last_name", { length: 100 }).notNull(),
   suffix: varchar({ length: 10 }),
   birthdate: date("birth_date").notNull(),
-  sex: profileSex().notNull(),
+  sex: sexEnum().notNull(),
   userId: text("user_id").notNull().unique()
     .references(() => user.id, { onDelete: "cascade" }),
 })
@@ -181,6 +183,39 @@ export const barangayReport = pgTable("barangay_report", {
   updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => /* @__PURE__ */ new Date()).notNull()
 })
 
+export const household = pgTable("household", {
+  id: serial().primaryKey(),
+  houseNumber: varchar("house_number", { length: 100 }).notNull(),
+  street: varchar({ length: 100 }).notNull(),
+  purok: varchar({ length: 10 }).notNull(),
+  accomplishedAt: timestamp("accomplished_at"),
+})
+
+export const civilStatus = pgEnum('civil_status', [
+  'single',
+  'married',
+  'widowed',
+  'separated',
+  'annulled',
+  'divorced',
+]);
+
+export const householdMember = pgTable("household_member", {
+  id: serial().primaryKey(),
+  firstname: varchar("first_name", { length: 100 }).notNull(),
+  middlename: varchar("middle_name", { length: 100 }),
+  lastname: varchar("last_name", { length: 100 }).notNull(),
+  suffix: varchar({ length: 10 }),
+  sex: sexEnum().notNull(),
+  civilStatus: civilStatus("civil_status").notNull(),
+  citizenship: varchar({ length: 100 }).notNull(),
+  occupation: varchar({ length: 100 }),
+  birthdate: date("birth_date").notNull(),
+  birthplace: varchar("birth_place", { length: 100 }).notNull(),
+  householdId: integer("household_id").notNull()
+    .references(() => resident.id, { onDelete: "cascade" }),
+})
+
 export const authRelations = defineRelationsPart({
   user,
   session,
@@ -192,6 +227,8 @@ export const authRelations = defineRelationsPart({
   address,
   documentRequest,
   barangayReport,
+  household,
+  householdMember,
 }, (r) => ({
   user: {
     sessions: r.many.session({
@@ -251,6 +288,18 @@ export const authRelations = defineRelationsPart({
     resident: r.one.resident({
       from: r.barangayReport.residentId,
       to: r.resident.id,
+    }),
+  },
+  household: {
+    householdMember: r.many.householdMember({
+      from: r.household.id,
+      to: r.householdMember.householdId,
+    }),
+  },
+  householdMember: {
+    household: r.one.household({
+      from: r.householdMember.householdId,
+      to: r.household.id,
     }),
   },
 }));
