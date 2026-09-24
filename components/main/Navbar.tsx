@@ -3,22 +3,31 @@
 import Link from 'next/link'
 import React from 'react'
 
-const links = [{
-  href: "/",
-  label: "Home"
-},
-{
-  href: "/requests",
-  label: "Requests"
-},
-{
-  href: "/reports",
-  label: "Reports"
-},
-{
-  href: "/profile",
-  label: "Profile"
-},
+const links = [
+  {
+    href: "/",
+    label: "Home"
+  },
+  {
+    href: "/document-request",
+    label: "Requests"
+  },
+  {
+    href: "/reports",
+    label: "Reports"
+  },
+  {
+    href: "/profile",
+    label: "Profile"
+  },
+  {
+    href: "/login",
+    label: "Log in"
+  },
+  {
+    href: "/signup",
+    label: "Sign up"
+  },
 ]
 
 export default function Navbar() {

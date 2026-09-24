@@ -1,6 +1,6 @@
 "use client"
 
-import { RegisterResident, registerResidentSchema, ResidentValidId, residentValidIdEnum } from "@/lib/zod/resident";
+import { RegisterResident, registerResidentSchema } from "@/lib/zod/resident";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { ArrowLeft, ArrowRight, Check, CheckCircle, Contact, Lock, MapPinHouse, SquareUserRound } from "lucide-react"
@@ -45,14 +45,14 @@ export default function SignupForm() {
       phone: "",
       password: "",
       confirmPassword: "",
-      validId: "National ID",
+      // validId: "National ID",
     },
     mode: "onBlur",
   });
 
   const stepFields: (keyof RegisterResident)[][] = [
     ["firstname", "middlename", "lastname", "suffix", "address", "phone", "email", "password", "confirmPassword"],
-    ["validId"],
+    // ["validId"],
   ]
 
   async function nextStep() {
@@ -368,7 +368,7 @@ export default function SignupForm() {
         )}
         {step === 2 && (
           <>
-            <div className="flex gap-8">
+            {/* <div className="flex gap-8">
               <div className="space-y-8 flex-1 ">
                 <div className="space-y-8 bg-white p-8 rounded-xl">
                   <div className="flex items-center gap-2">
@@ -427,7 +427,7 @@ export default function SignupForm() {
                 </div>
               </div>
               <DocumentGuide />
-            </div>
+            </div> */}
             <div className="flex items-center my-8 justify-between bg-white rounded-xl p-4">
               <Button
                 type="button"
